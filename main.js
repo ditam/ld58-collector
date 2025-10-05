@@ -2,13 +2,17 @@
 const WIDTH = 800;
 const HEIGHT = 500;
 const PLAYER_SPEED = 4;
-const PLAYER_SIZE = 25;
+const PLAYER_SIZE = 20;
 const ACTIVITY_RADIUS = 50;
 // movement within this margin attempts to scroll the viewport if possible
 const VIEWPORT_SCROLL_MARGIN = 150;
 
-const MAP_WIDTH = 2000;
-const MAP_HEIGHT = 1200;
+const forestBGColor = 'rgb(50, 100, 50)';
+const townBGColor = 'rgba(93, 83, 49, 1)';
+
+// not actually const, depends on current level
+let MAP_WIDTH = 2000;
+let MAP_HEIGHT = 1200;
 
 let ctx, ctx2;
 
@@ -46,7 +50,9 @@ let player = new Proxy(player_internal, {
   },
 });
 
-const mapObjects = [
+const mapObjects = [];
+
+const levelObjects = [
   {x: 0, y: 0},
   {x: 100, y: 100},
   {x: 200, y: 200},
@@ -61,6 +67,12 @@ const mapObjects = [
   {x: 700, y: 700},
   {x: 800, y: 800},
 ];
+
+function generateMapObjects() {
+  levelObjects.forEach(o => {
+    mapObjects.push(o);
+  });
+}
 
 const inventory = [];
 
@@ -95,6 +107,8 @@ function pickUpItemAtCurrentPosition() {
   }
 }
 
+let inTown = true;
+
 const keysPressed = {
   up:    false,
   right: false,
@@ -102,6 +116,26 @@ const keysPressed = {
   left:  false,
   e:     false,
 };
+
+function switchScenes() {
+  if (!inTown) {
+    console.log('returning to town...');
+    // the town is always single screen
+    MAP_WIDTH = WIDTH;
+    MAP_HEIGHT = HEIGHT;
+    mapObjects.length = 0; // empties the map
+    player.x = 400;
+    player.y = 150;
+    secondaryCanvas.hide();
+  } else {
+    console.log('entering forest...');
+    generateMapObjects();
+    MAP_WIDTH = 2000;
+    MAP_HEIGHT = 1200;
+    secondaryCanvas.show();
+  }
+  inTown = !inTown;
+}
 
 function applyMovement() {
   const xInViewPort = player.x - viewport.x;
@@ -144,6 +178,10 @@ function drawFrame(timestamp) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   ctx2.clearRect(0, 0, WIDTH, HEIGHT);
 
+  // set main bg according to level (later maybe fancy gradients?)
+  ctx.fillStyle = inTown? townBGColor : forestBGColor;
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
   // debug / alignment markers
   ctx.save();
   ctx.strokeStyle = 'black';
@@ -156,7 +194,7 @@ function drawFrame(timestamp) {
   // draw player
   ctx.save();
   ctx.beginPath();
-  ctx.fillStyle = 'yellow';
+  ctx.fillStyle = 'rgba(206, 169, 20, 1)';
   ctx.arc(xInViewPort, yInViewPort, PLAYER_SIZE, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
@@ -180,9 +218,12 @@ function drawFrame(timestamp) {
   requestAnimationFrame(drawFrame);
 }
 
+let secondaryCanvas;
 $(document).ready(function() {
   const canvas = document.getElementById('main-canvas');
   const canvas2 = document.getElementById('secondary-canvas');
+  secondaryCanvas = $(canvas2);
+  secondaryCanvas.hide();
   $(canvas).attr('height', HEIGHT);
   $(canvas).attr('width', WIDTH);
   $(canvas2).attr('height', HEIGHT);
@@ -223,6 +264,9 @@ $(document).ready(function() {
       case 'KeyE':
         keysPressed.e = true;
         pickUpItemAtCurrentPosition();
+        break;
+      case 'KeyL':
+        switchScenes();
         break;
     }
   });
