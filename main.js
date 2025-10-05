@@ -3,6 +3,8 @@ const WIDTH = 800;
 const HEIGHT = 500;
 const PLAYER_SPEED = 4;
 const PLAYER_SIZE = 50;
+// movement within this margin attempts to scroll the viewport if possible
+const VIEWPORT_SCROLL_MARGIN = 150;
 
 const MAP_WIDTH = 2000;
 const MAP_HEIGHT = 1200;
@@ -16,6 +18,7 @@ const player_internal = {
 
 const viewport = {
   // x and y are offsets from (0, 0)
+  // TODO: guards against negatives
   x: 0,
   y: 0,
 }
@@ -33,6 +36,21 @@ let player = new Proxy(player_internal, {
   },
 });
 
+const mapObjects = [
+  {x: 0, y: 0},
+  {x: 100, y: 100},
+  {x: 200, y: 200},
+  {x: 300, y: 300},
+  {x: 350, y: 300},
+  {x: 400, y: 300},
+  {x: 450, y: 300},
+  {x: 500, y: 300},
+  {x: 400, y: 400},
+  {x: 500, y: 500},
+  {x: 600, y: 600},
+  {x: 700, y: 700},
+  {x: 800, y: 800},
+];
 
 const keysPressed = {
   up:    false,
@@ -43,55 +61,61 @@ const keysPressed = {
 };
 
 function applyMovement() {
+  const xInViewPort = player.x - viewport.x;
+  const yInViewPort = player.y - viewport.y;
   if (keysPressed.up && player.y > 0) {
     player.y = Math.max(0, player.y - PLAYER_SPEED);
+    if (yInViewPort <= VIEWPORT_SCROLL_MARGIN) {
+      viewport.y = Math.max(0, viewport.y - PLAYER_SPEED);
+    }
   }
-  if (keysPressed.right && player.x < WIDTH) {
-    player.x = Math.min(WIDTH, player.x + PLAYER_SPEED);
+  if (keysPressed.right && player.x < MAP_WIDTH) {
+    player.x = Math.min(MAP_WIDTH, player.x + PLAYER_SPEED);
+    if (WIDTH - xInViewPort <= VIEWPORT_SCROLL_MARGIN) {
+      viewport.x = Math.min(MAP_WIDTH - WIDTH, viewport.x + PLAYER_SPEED);
+    }
   }
-  if (keysPressed.down && player.y < HEIGHT) {
-    player.y = Math.min(HEIGHT, player.y + PLAYER_SPEED);
+  if (keysPressed.down && player.y < MAP_HEIGHT) {
+    player.y = Math.min(MAP_HEIGHT, player.y + PLAYER_SPEED);
+    if (HEIGHT - yInViewPort <= VIEWPORT_SCROLL_MARGIN) {
+      viewport.y = Math.min(MAP_HEIGHT - HEIGHT, viewport.y + PLAYER_SPEED);
+    }
   }
   if (keysPressed.left && player.x > 0) {
     player.x = Math.max(0, player.x - PLAYER_SPEED);
+    if (xInViewPort <= VIEWPORT_SCROLL_MARGIN) {
+      viewport.x = Math.max(0, viewport.x - PLAYER_SPEED);
+    }
   }
 }
 
+let debugLog;
 function drawFrame(timestamp) {
   applyMovement();
+  debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
+  const xInViewPort = player.x - viewport.x;
+  const yInViewPort = player.y - viewport.y;
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
   // debug / alignment markers
-  let markerNumber = 0;
   ctx.save();
   ctx.strokeStyle = 'black';
-  ctx.fillStyle = 'red';
-  ctx.fillRect(100, 100, 20, 20);
-  ctx.font = '20px sans-serif';
   ctx.fillStyle = 'black';
-  for (let row=0; row<20; row++) {
-    ctx.beginPath();
-    ctx.moveTo(0, MAP_HEIGHT/20 * row);
-    ctx.lineTo(MAP_WIDTH, MAP_HEIGHT/20 * row);
-    ctx.stroke();
-  }
-  for (let col=0; col<20; col++) {
-    ctx.beginPath();
-    ctx.moveTo(MAP_WIDTH/20 * col, 0);
-    ctx.lineTo(MAP_WIDTH/20 * col, MAP_HEIGHT);
-    ctx.stroke();
-  }
+  mapObjects.forEach(o => {
+    ctx.fillRect(o.x - viewport.x, o.y - viewport.y, 10, 10);
+  });
   ctx.restore();
 
+  // draw player
   ctx.save();
   ctx.beginPath();
   ctx.fillStyle = 'yellow';
-  ctx.arc(player.x, player.y, PLAYER_SIZE, 0, Math.PI*2);
+  ctx.arc(xInViewPort, yInViewPort, PLAYER_SIZE, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
 
-
-  // cutout test
+  // cutout test - TODO: add as separate layer around player marker
+  /*
   ctx.save();
   ctx.beginPath();
   ctx.filter = 'blur(15px)';
@@ -100,16 +124,17 @@ function drawFrame(timestamp) {
   ctx.arc(350, 350, 100, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
+  */
 
   requestAnimationFrame(drawFrame);
 }
 
 $(document).ready(function() {
-  console.log('Hello LD58!');
-
   const canvas = document.getElementById('main-canvas');
   $(canvas).attr('height', HEIGHT);
   $(canvas).attr('width', WIDTH);
+
+  debugLog = $('#debug-log');
 
   ctx = canvas.getContext('2d');
 
