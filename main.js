@@ -19,6 +19,9 @@ let MAP_HEIGHT = HEIGHT;
 let ctx, ctx2;
 
 // TODO: utils module
+function getRandomItem(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
 function getRandomInt(min, max) { // min and max included
   if (typeof max === 'undefined') {
     max = min;
@@ -53,27 +56,16 @@ let player = new Proxy(player_internal, {
 });
 
 const mapObjects = [];
-
-const levelObjects = [
-  {x: 0, y: 0},
-  {x: 100, y: 100},
-  {x: 200, y: 200},
-  {x: 300, y: 300},
-  {x: 350, y: 300},
-  {x: 400, y: 300},
-  {x: 450, y: 300},
-  {x: 500, y: 300},
-  {x: 400, y: 400},
-  {x: 500, y: 500},
-  {x: 600, y: 600},
-  {x: 700, y: 700},
-  {x: 800, y: 800},
-];
+const itemTypes = ['rock', 'basic'];
 
 function generateMapObjects() {
-  levelObjects.forEach(o => {
-    mapObjects.push(o);
-  });
+  for (let i=0; i<50; i++) {
+    mapObjects.push({
+      x: getRandomInt(MAP_WIDTH),
+      y: getRandomInt(MAP_HEIGHT),
+      type: getRandomItem(itemTypes)
+    });
+  }
 }
 
 function generateTownObjects() {
@@ -126,8 +118,7 @@ function interact() {
         // in forest: remove item from map and move to inventory
         const item = mapObjects.splice(i, 1)[0];
         console.log('found item:', item);
-        // TODO: process item type
-        inventory.push({type: 'mushroom'});
+        inventory.push({type: item.type});
       }
       return true;
     }
@@ -146,21 +137,21 @@ const keysPressed = {
 };
 
 function switchScenes() {
+  mapObjects.length = 0; // empties the map
   if (!inTown) {
     console.log('Returning to town...');
-    generateTownObjects();
     // the town is always single screen
     MAP_WIDTH = WIDTH;
     MAP_HEIGHT = HEIGHT;
-    mapObjects.length = 0; // empties the map
+    generateTownObjects();
     player.x = 400;
     player.y = 150;
     secondaryCanvas.hide();
   } else {
     console.log('Entering forest...');
-    generateMapObjects();
     MAP_WIDTH = 2000;
     MAP_HEIGHT = 1200;
+    generateMapObjects();
     secondaryCanvas.show();
   }
   inTown = !inTown;
