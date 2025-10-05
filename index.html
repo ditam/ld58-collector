@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-  <title>Hello LD58 Collector</title>
+  <title>The Legend of the Mondrokko</title>
 
   <link rel="stylesheet" type="text/css" href="ext/reset.css">
   <link rel="stylesheet" type="text/css" href="styles.css">
@@ -11,6 +11,45 @@
 <body>
   <canvas id="main-canvas"></canvas>
   <canvas id="secondary-canvas"></canvas>
+
+  <div id="header">
+    <div id="inventory">
+    </div>
+    <div id="score">
+    </div>
+  </div>
+
+  <div id="merchant-screen">
+    <div id="p1"></div>
+    <div id="p2"></div>
+    <div id="upgrades-list">
+      <div class="upgrade" id="inventory-upgrade">
+        <span class="label">Increased backpack size</span>
+        <span class="price">100</span>
+        <span class="button">Buy</span>
+      </div>
+      <div class="upgrade" id="speed-upgrade">
+        <span class="label">Faster walking speed</span>
+        <span class="price">100</span>
+        <span class="button">Buy</span>
+      </div>
+      <div class="upgrade" id="vision-upgrade">
+        <span class="label">Better undergrowth visibility</span>
+        <span class="price">100</span>
+        <span class="button">Buy</span>
+      </div>
+      <div class="upgrade" id="tool-upgrade">
+        <span class="label">More powerful digging tool</span>
+        <span class="price">100</span>
+        <span class="button">Buy</span>
+      </div>
+      <div class="upgrade" id="hireling-upgrade">
+        <span class="label">Hire merchant to join you</span>
+        <span class="price">5000</span>
+        <span class="button">Buy</span>
+      </div>
+    </div>
+  </div>
 
   <div id="debug-container">
     <div id="debug-log"></div>

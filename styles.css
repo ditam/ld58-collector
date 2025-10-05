@@ -20,3 +20,11 @@ canvas {
   position: absolute;
   top: 510px;
 }
+
+#merchant-screen {
+  position: absolute;
+  top: 300px;
+  left: 150px;
+  width: 500px;
+  background: gray;
+}
