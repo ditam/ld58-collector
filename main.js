@@ -10,9 +10,11 @@ const VIEWPORT_SCROLL_MARGIN = 150;
 const forestBGColor = 'rgb(50, 100, 50)';
 const townBGColor = 'rgba(93, 83, 49, 1)';
 
+// The game starts in town
+let inTown = true;
 // not actually const, depends on current level
-let MAP_WIDTH = 2000;
-let MAP_HEIGHT = 1200;
+let MAP_WIDTH = WIDTH;
+let MAP_HEIGHT = HEIGHT;
 
 let ctx, ctx2;
 
@@ -74,6 +76,20 @@ function generateMapObjects() {
   });
 }
 
+function generateTownObjects() {
+  mapObjects.push({
+    type: 'exit',
+    x: 300,
+    y: 50
+  });
+  mapObjects.push({
+    type: 'merchant',
+    x: 500,
+    y: 400
+  });
+}
+generateTownObjects()
+
 const inventory = [];
 
 const trees = [];
@@ -90,24 +106,36 @@ function dist(a, b) {
   return Math.sqrt(dX*dX + dY*dY);
 }
 
-function pickUpItemAtCurrentPosition() {
+function showMerchantDialog() {
+  console.log('opening merchant dialog...');
+}
+
+function interact() {
   let found = false;
   mapObjects.some((o, i) => {
     if (dist(o, player) < ACTIVITY_RADIUS) {
-      const item = mapObjects.splice(i, 1)[0];
-      console.log('found item:', item);
-      // TODO: process item type
-      inventory.push({type: 'mushroom'});
       found = true;
+      if (inTown) {
+        // in town: interact with object
+        if (o.type === 'exit') {
+          switchScenes();
+        } else if (o.type === 'merchant') {
+          showMerchantDialog();
+        }
+      } else {
+        // in forest: remove item from map and move to inventory
+        const item = mapObjects.splice(i, 1)[0];
+        console.log('found item:', item);
+        // TODO: process item type
+        inventory.push({type: 'mushroom'});
+      }
       return true;
     }
   });
   if (!found) {
-    console.warn('No item available for pickup at', player.x, player.y);
+    console.warn('No interaction available at', player.x, player.y);
   }
 }
-
-let inTown = true;
 
 const keysPressed = {
   up:    false,
@@ -119,7 +147,8 @@ const keysPressed = {
 
 function switchScenes() {
   if (!inTown) {
-    console.log('returning to town...');
+    console.log('Returning to town...');
+    generateTownObjects();
     // the town is always single screen
     MAP_WIDTH = WIDTH;
     MAP_HEIGHT = HEIGHT;
@@ -128,7 +157,7 @@ function switchScenes() {
     player.y = 150;
     secondaryCanvas.hide();
   } else {
-    console.log('entering forest...');
+    console.log('Entering forest...');
     generateMapObjects();
     MAP_WIDTH = 2000;
     MAP_HEIGHT = 1200;
@@ -263,7 +292,7 @@ $(document).ready(function() {
         break;
       case 'KeyE':
         keysPressed.e = true;
-        pickUpItemAtCurrentPosition();
+        interact();
         break;
       case 'KeyL':
         switchScenes();
