@@ -10,7 +10,16 @@ const VIEWPORT_SCROLL_MARGIN = 150;
 const MAP_WIDTH = 2000;
 const MAP_HEIGHT = 1200;
 
-let ctx;
+let ctx, ctx2;
+
+// TODO: utils module
+function getRandomInt(min, max) { // min and max included
+  if (typeof max === 'undefined') {
+    max = min;
+    min = 0;
+  }
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 const player_internal = {
   x: 300,
@@ -58,7 +67,7 @@ const inventory = [];
 const trees = [];
 for (let i=0; i<20; i++) {
   for (let j=0; j<12; j++) {
-    trees.push({x: i*100, y: j*100});
+    trees.push({x: i*100 + getRandomInt(30), y: j*100 + getRandomInt(30)});
   }
 }
 
@@ -130,7 +139,10 @@ function drawFrame(timestamp) {
   inventoryLog.text(JSON.stringify(inventory));
   const xInViewPort = player.x - viewport.x;
   const yInViewPort = player.y - viewport.y;
+
+  // clear both canvases
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  ctx2.clearRect(0, 0, WIDTH, HEIGHT);
 
   // debug / alignment markers
   ctx.save();
@@ -149,30 +161,38 @@ function drawFrame(timestamp) {
   ctx.fill();
   ctx.restore();
 
-  // cutout test - TODO: add as separate layer around player marker
-  /*
-  ctx.save();
-  ctx.beginPath();
-  ctx.filter = 'blur(15px)';
-  ctx.fillStyle = 'blue';
-  ctx.globalCompositeOperation = 'destination-out'
-  ctx.arc(350, 350, 100, 0, Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-  */
+  // draw forest cover on secondary canvas
+  ctx2.fillStyle = 'green';
+  trees.forEach(t=>{
+    ctx2.beginPath();
+    ctx2.arc(t.x - viewport.x, t.y - viewport.y, 45, 0, Math.PI*2);
+    ctx2.fill();
+  })
+  // draw visibility aroud player
+  ctx2.save();
+  ctx2.filter = 'blur(20px)';
+  ctx2.globalCompositeOperation = 'destination-out';
+  ctx2.beginPath();
+  ctx2.arc(xInViewPort, yInViewPort, 120, 0, Math.PI*2);
+  ctx2.fill();
+  ctx2.restore();
 
   requestAnimationFrame(drawFrame);
 }
 
 $(document).ready(function() {
   const canvas = document.getElementById('main-canvas');
+  const canvas2 = document.getElementById('secondary-canvas');
   $(canvas).attr('height', HEIGHT);
   $(canvas).attr('width', WIDTH);
+  $(canvas2).attr('height', HEIGHT);
+  $(canvas2).attr('width', WIDTH);
 
   debugLog = $('#debug-log');
   inventoryLog = $('#inventory-log');
 
   ctx = canvas.getContext('2d');
+  ctx2 = canvas2.getContext('2d');
 
   ctx.fillStyle = '#2194caff';
   ctx.strokeStyle = 'green';

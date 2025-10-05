@@ -3,6 +3,20 @@ body {
 }
 
 canvas {
+  /*
+  // We must not have any background colour, otherwise the layered secondary canvas would cover the main.
   background-color: rgb(16, 124, 132);
+  */
   border: 1px solid rgb(0, 0, 0);
+}
+
+#main-canvas, #secondary-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+#debug-container {
+  position: absolute;
+  top: 510px;
 }
