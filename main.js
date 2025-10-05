@@ -2,7 +2,8 @@
 const WIDTH = 800;
 const HEIGHT = 500;
 const PLAYER_SPEED = 4;
-const PLAYER_SIZE = 50;
+const PLAYER_SIZE = 25;
+const ACTIVITY_RADIUS = 50;
 // movement within this margin attempts to scroll the viewport if possible
 const VIEWPORT_SCROLL_MARGIN = 150;
 
@@ -52,6 +53,39 @@ const mapObjects = [
   {x: 800, y: 800},
 ];
 
+const inventory = [];
+
+const trees = [];
+for (let i=0; i<20; i++) {
+  for (let j=0; j<12; j++) {
+    trees.push({x: i*100, y: j*100});
+  }
+}
+
+function dist(a, b) {
+  console.assert(a.hasOwnProperty('x') && a.hasOwnProperty('y') && b.hasOwnProperty('x') && b.hasOwnProperty('y'), 'Invalid dist targets:', a, b);
+  const dX = a.x-b.x;
+  const dY = a.y-b.y;
+  return Math.sqrt(dX*dX + dY*dY);
+}
+
+function pickUpItemAtCurrentPosition() {
+  let found = false;
+  mapObjects.some((o, i) => {
+    if (dist(o, player) < ACTIVITY_RADIUS) {
+      const item = mapObjects.splice(i, 1)[0];
+      console.log('found item:', item);
+      // TODO: process item type
+      inventory.push({type: 'mushroom'});
+      found = true;
+      return true;
+    }
+  });
+  if (!found) {
+    console.warn('No item available for pickup at', player.x, player.y);
+  }
+}
+
 const keysPressed = {
   up:    false,
   right: false,
@@ -89,10 +123,11 @@ function applyMovement() {
   }
 }
 
-let debugLog;
+let debugLog, inventoryLog;
 function drawFrame(timestamp) {
   applyMovement();
   debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
+  inventoryLog.text(JSON.stringify(inventory));
   const xInViewPort = player.x - viewport.x;
   const yInViewPort = player.y - viewport.y;
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -135,6 +170,7 @@ $(document).ready(function() {
   $(canvas).attr('width', WIDTH);
 
   debugLog = $('#debug-log');
+  inventoryLog = $('#inventory-log');
 
   ctx = canvas.getContext('2d');
 
@@ -166,6 +202,7 @@ $(document).ready(function() {
         break;
       case 'KeyE':
         keysPressed.e = true;
+        pickUpItemAtCurrentPosition();
         break;
     }
   });
