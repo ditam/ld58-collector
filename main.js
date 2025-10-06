@@ -369,8 +369,11 @@ function applyMovement() {
 let debugLog, inventoryLog;
 function drawFrame(timestamp) {
   applyMovement();
-  debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
-  inventoryLog.text(JSON.stringify(inventory));
+
+  if (window.isDebug) {
+    debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
+    inventoryLog.text(JSON.stringify(inventory));
+  }
   const xInViewPort = player.x - viewport.x;
   const yInViewPort = player.y - viewport.y;
 
@@ -379,8 +382,8 @@ function drawFrame(timestamp) {
   ctx2.clearRect(0, 0, constants.WIDTH, constants.HEIGHT);
 
   // set main bg according to level (later maybe fancy gradients?)
-  ctx.fillStyle = inTown? constants.townBGColor : constants.forestBGColor;
-  ctx.fillRect(0, 0, constants.WIDTH, constants.HEIGHT);
+  //ctx.fillStyle = inTown? constants.townBGColor : constants.forestBGColor;
+  //ctx.fillRect(0, 0, constants.WIDTH, constants.HEIGHT);
 
   // map objects
   ctx.save();
@@ -397,7 +400,7 @@ function drawFrame(timestamp) {
   // draw player
   ctx.save();
   ctx.beginPath();
-  ctx.fillStyle = 'rgba(206, 169, 20, 1)';
+  ctx.fillStyle = 'rgba(22, 83, 54, 1)';
   ctx.arc(xInViewPort, yInViewPort, constants.PLAYER_SIZE, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();

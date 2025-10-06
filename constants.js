@@ -1,6 +1,6 @@
 const params = {
-  WIDTH: 800,
-  HEIGHT: 500,
+  WIDTH: 960,
+  HEIGHT: 540,
   PLAYER_SIZE: 20,
   ACTIVITY_RADIUS: 50,
   // movement within this margin attempts to scroll the viewport if possible
@@ -9,5 +9,7 @@ const params = {
   forestBGColor: '#3A656B',
   townBGColor: '#497b81ff',
 };
+
+window.isDebug = false;
 
 export default params;
