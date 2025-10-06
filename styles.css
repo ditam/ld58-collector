@@ -21,6 +21,23 @@ canvas {
   top: 510px;
 }
 
+#header {
+  position: absolute;
+  margin: 5px;
+}
+
+#header #inventory .slot {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-right: 2px;
+  outline: 1px solid gray;
+}
+
+#header #inventory .slot.filled {
+  background-color: gray;
+}
+
 #merchant-screen {
   position: absolute;
   top: 250px;

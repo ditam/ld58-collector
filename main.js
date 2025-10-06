@@ -9,6 +9,7 @@ let VISION_SIZE = 1;
 let TOOL_STRENGTH = 1;
 let hasFollower = false;
 
+let maxItems = INVENTORY_SIZE + 5;
 const inventory = [];
 
 // The game starts in town
@@ -22,7 +23,7 @@ let ctx, ctx2;
 const player_internal = {
   x: 300,
   y: 120,
-  score: 0,
+  score: 100,
 };
 
 const viewport = {
@@ -31,18 +32,19 @@ const viewport = {
   x: 0,
   y: 0,
 };
-let player = new Proxy(player_internal, {
+const player = new Proxy(player_internal, {
   set(target, prop, value) {
     // TODO: adjust viewport x/y
     if (prop === 'x') {
       target.x = value;
-      return value;
+      // NB: if we return value 0 would raise a trap returned falsish error
+      return target;
     } else if (prop === 'y') {
       target.y = value;
-      return value;
+      return target;
     } else if (prop === 'score') {
       target.score = value;
-      return value;
+      return target;
       // TODO: update counter
     } else {
       console.warn('Unknown property setter:', prop);
@@ -78,11 +80,28 @@ function generateTownObjects() {
 }
 generateTownObjects()
 
+// TODO: regen for each level
 const trees = [];
 for (let i=0; i<20; i++) {
   for (let j=0; j<12; j++) {
     trees.push({x: i*100 + utils.getRandomInt(30), y: j*100 + utils.getRandomInt(30)});
   }
+}
+
+let header;
+function updateHeader() {
+  const inventoryEl = header.find('#inventory');
+  inventoryEl.empty();
+  for (let i=0; i<maxItems; i++) {
+    const slot = $('<div>').addClass('slot');
+    if (inventory[i]) {
+      slot.addClass('filled');
+    }
+    slot.appendTo(inventoryEl);
+  }
+
+  const score = header.find('#score');
+  score.text(player.score);
 }
 
 let merchantScreen;
@@ -116,6 +135,8 @@ function initMerchantDialog() {
     } else {
       player.score -= upgCost;
       INVENTORY_SIZE++;
+      maxItems = INVENTORY_SIZE+5;
+      updateHeader();
     }
   });
   merchantScreen.find('#speed-upgrade .button').click(e => {
@@ -191,7 +212,8 @@ function interact() {
         const item = mapObjects.splice(i, 1)[0];
         console.log('found item:', item);
         inventory.push({type: item.type});
-        if (inventory.length >= (INVENTORY_SIZE+5)) {
+        updateHeader();
+        if (inventory.length >= maxItems) {
           // TODO: somehow explain to user why they go back? Simple confirm message?
           switchScenes();
         }
@@ -211,9 +233,11 @@ function switchScenes() {
     // the town is always single screen
     MAP_WIDTH = constants.WIDTH;
     MAP_HEIGHT = constants.HEIGHT;
-    generateTownObjects();
+    viewport.x = 0;
+    viewport.y = 0;
     player.x = 400;
     player.y = 150;
+    generateTownObjects();
     secondaryCanvas.hide();
   } else {
     console.log('Entering forest...');
@@ -322,6 +346,7 @@ $(document).ready(function() {
 
   debugLog = $('#debug-log');
   inventoryLog = $('#inventory-log');
+  header = $('#header');
 
   ctx = canvas.getContext('2d');
   ctx2 = canvas2.getContext('2d');
@@ -330,6 +355,7 @@ $(document).ready(function() {
   ctx.strokeStyle = 'green';
   ctx.lineWidth = 1;
 
+  updateHeader();
   initMerchantDialog();
   ui.init({
     interact: interact,
