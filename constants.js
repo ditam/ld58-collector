@@ -10,6 +10,6 @@ const params = {
   townBGColor: '#497b81ff',
 };
 
-window.isDebug = true;
+window.isDebug = false;
 
 export default params;
