@@ -187,6 +187,8 @@ function initMerchantDialog() {
 
 function showMerchantDialog() {
   merchantScreen.show();
+  // inventory is automatically sold when visiting the merchant:
+  const toolBonus = TOOL_STRENGTH * 5;
 }
 
 function interact() {
