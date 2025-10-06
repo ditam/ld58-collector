@@ -20,7 +20,26 @@ export default {
     return array[Math.floor(Math.random() * array.length)];
   },
 
-  noop: function(){ return; },
+  getSpriteOffset: function(currentFrame, objName) {
+    console.assert(typeof currentFrame === 'number');
+    console.assert(typeof objName === 'string');
 
+    let spriteOffset = 0;
+    if (objName === 'player') {
+      if (currentFrame%120 > 60) {
+        spriteOffset = 32;
+      }
+    } else if (objName === 'merchant') {
+      if (currentFrame%120 > 60) {
+        spriteOffset = 32;
+      }
+    } else {
+      console.assert(false, 'Unknown sprite object name: ' + objName);
+    }
+
+    return spriteOffset;
+  },
+
+  noop: function(){ return; },
 
 }

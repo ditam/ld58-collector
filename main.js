@@ -62,6 +62,9 @@ const mapObjects = [];
 const availableItemTypes = ['rock', 'basic', 'basic'];
 const notYetAddedItemTypes = ['basic2', 'rare', 'poison', 'large', 'rare'];
 
+const playerSprite = $('<img>').attr('src', 'img/player-sprite.png').get(0);
+const merchantSprite = $('<img>').attr('src', 'img/merchant-sprite.png').get(0);
+
 // TODO: there should be a single source
 const itemTypes = ['rock', 'basic', 'basic2', 'rare', 'poison', 'large'];
 const type2Name = {
@@ -80,13 +83,19 @@ const type2Price = {
   'poison': 0,
   'large': 300
 }
+// FIXME: unify tree and item sources
 const type2Img = {
   'rock': $('<img>').attr('src', 'img/rock.png').get(0),
   'basic': $('<img>').attr('src', 'img/mushroom-basic.png').get(0),
   'basic2': $('<img>').attr('src', 'img/mushroom-basic2.png').get(0),
   'rare': $('<img>').attr('src', 'img/mushroom-rare.png').get(0),
   'poison': $('<img>').attr('src', 'img/mushroom-poison.png').get(0),
-  'large': $('<img>').attr('src', 'img/mushroom-large.png').get(0)
+  'large': $('<img>').attr('src', 'img/mushroom-large.png').get(0),
+  'merchant': $('<img>').attr('src', 'img/merchant.png').get(0),
+  'exit': $('<img>').attr('src', 'img/forest-sign.png').get(0),
+  'town-bg': $('<img>').attr('src', 'img/town-bg.png').get(0),
+  'town-tree1': $('<img>').attr('src', 'img/tree1.png').get(0),
+  'town-tree3': $('<img>').attr('src', 'img/tree3.png').get(0),
 }
 itemTypes.forEach(t => {
   console.assert(type2Name.hasOwnProperty(t), 'Missing name for type:', t);
@@ -112,12 +121,31 @@ function generateTownObjects() {
   });
   mapObjects.push({
     type: 'merchant',
-    x: 500,
-    y: 400
+    x: 750,
+    y: 200
+  });
+  mapObjects.push({
+    type: 'town-bg',
+    x: 350,
+    y: 0
+  });
+  mapObjects.push({
+    type: 'town-tree3',
+    x: 200,
+    y: 200
+  });
+  mapObjects.push({
+    type: 'town-tree3',
+    x: 600,
+    y: 150
+  });
+  mapObjects.push({
+    type: 'town-tree1',
+    x: 800,
+    y: 40
   });
 }
 generateTownObjects()
-
 
 const treeImages = [
   $('<img>').attr('src', 'img/tree1.png').get(0),
@@ -397,7 +425,9 @@ function applyMovement() {
 }
 
 let debugLog, inventoryLog;
+let frameCount = 0;
 function drawFrame(timestamp) {
+  frameCount++;
   applyMovement();
 
   if (window.isDebug) {
@@ -420,7 +450,15 @@ function drawFrame(timestamp) {
   ctx.fillStyle = 'black';
   mapObjects.forEach(o => {
     if (type2Img.hasOwnProperty(o.type)) {
-      ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 32, 32);
+      if (o.type === 'merchant' || o.type === 'exit') {
+        ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 64, 64);
+      } else if (o.type === 'town-tree1' || o.type === 'town-tree3') {
+        ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 128, 128);
+      } else if (o.type === 'town-bg') {
+        ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 600, 500);
+      } else {
+        ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 32, 32);
+      }
     } else {
       ctx.fillRect(o.x - viewport.x, o.y - viewport.y, 10, 10);
     }
@@ -430,18 +468,24 @@ function drawFrame(timestamp) {
   // draw player
   ctx.save();
   ctx.beginPath();
-  ctx.fillStyle = 'rgba(22, 83, 54, 1)';
-  ctx.arc(xInViewPort, yInViewPort, constants.PLAYER_SIZE, 0, Math.PI*2);
-  ctx.fill();
+  //ctx.fillStyle = 'rgba(22, 83, 54, 1)';
+  //ctx.arc(xInViewPort, yInViewPort, constants.PLAYER_SIZE, 0, Math.PI*2);
+  //ctx.fill();
+  ctx.drawImage(
+    playerSprite,
+    utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
+    xInViewPort + 0.5, yInViewPort + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
+  );
   ctx.restore();
 
   // draw follower if available
   if (hasFollower) {
     ctx.save();
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(32, 14, 67, 1)';
-    ctx.arc(xInViewPort + 50, yInViewPort + 50, constants.PLAYER_SIZE, 0, Math.PI*2);
-    ctx.fill();
+    ctx.drawImage(
+      merchantSprite,
+      utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
+      xInViewPort + 0.5, yInViewPort + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
+    );
     ctx.restore();
   }
 
