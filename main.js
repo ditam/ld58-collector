@@ -188,6 +188,8 @@ function initMerchantDialog() {
       INVENTORY_SIZE++;
       maxItems = INVENTORY_SIZE+5;
       updateHeader();
+      // FIXME: add a way to close the merchant dialog, so more updates can be bought at once.
+      merchantScreen.hide();
     }
   });
   merchantScreen.find('#speed-upgrade .button').click(e => {
@@ -199,6 +201,7 @@ function initMerchantDialog() {
       player.score -= upgCost;
       PLAYER_SPEED++;
       updateHeader();
+      merchantScreen.hide();
     }
   });
   merchantScreen.find('#vision-upgrade .button').click(e => {
@@ -210,6 +213,7 @@ function initMerchantDialog() {
       player.score -= upgCost;
       VISION_SIZE++;
       updateHeader();
+      merchantScreen.hide();
     }
   });
   merchantScreen.find('#tool-upgrade .button').click(e => {
@@ -221,6 +225,7 @@ function initMerchantDialog() {
       player.score -= upgCost;
       TOOL_STRENGTH++;
       updateHeader();
+      merchantScreen.hide();
     }
   });
   merchantScreen.find('#hireling-upgrade .button').click(e => {
@@ -232,6 +237,7 @@ function initMerchantDialog() {
       player.score -= upgCost;
       hasFollower = true;
       updateHeader();
+      merchantScreen.hide();
     }
   });
 
