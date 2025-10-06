@@ -23,8 +23,41 @@ canvas {
 
 #merchant-screen {
   position: absolute;
-  top: 300px;
+  top: 250px;
   left: 150px;
   width: 500px;
   background: gray;
+
+  user-select: none;
+}
+
+#merchant-screen #upgrades-list {
+  padding-top: 20px;
+}
+
+#merchant-screen #upgrades-list .upgrade {
+  line-height: 28px;
+  padding: 5px;
+  display: flex;
+}
+#merchant-screen #upgrades-list .upgrade:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#merchant-screen #upgrades-list .upgrade .price {
+  margin-left: auto;
+  padding-right: 6px;
+}
+
+#merchant-screen #upgrades-list .upgrade .button {
+  padding: 4px 15px;
+  margin-top: -4px;
+}
+#merchant-screen #upgrades-list .upgrade .button:hover {
+  cursor: pointer;
+  background-color: rgba(1, 1, 1, 0.3);
+}
+
+#merchant-screen #upgrades-list .upgrade .price {
+  right: 50px;
 }
