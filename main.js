@@ -1,13 +1,5 @@
-
-const WIDTH = 800;
-const HEIGHT = 500;
-const PLAYER_SIZE = 20;
-const ACTIVITY_RADIUS = 50;
-// movement within this margin attempts to scroll the viewport if possible
-const VIEWPORT_SCROLL_MARGIN = 150;
-
-const forestBGColor = 'rgb(50, 100, 50)';
-const townBGColor = 'rgba(93, 83, 49, 1)';
+import utils from './utils.js';
+import constants from './constants.js';
 
 // upgradeable properties
 let INVENTORY_SIZE = 1;
@@ -21,22 +13,10 @@ const inventory = [];
 // The game starts in town
 let inTown = true;
 // not actually const, depends on current level
-let MAP_WIDTH = WIDTH;
-let MAP_HEIGHT = HEIGHT;
+let MAP_WIDTH = constants.WIDTH;
+let MAP_HEIGHT = constants.HEIGHT;
 
 let ctx, ctx2;
-
-// TODO: utils module
-function getRandomItem(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-function getRandomInt(min, max) { // min and max included
-  if (typeof max === 'undefined') {
-    max = min;
-    min = 0;
-  }
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
 
 const player_internal = {
   x: 300,
@@ -55,10 +35,13 @@ let player = new Proxy(player_internal, {
     // TODO: adjust viewport x/y
     if (prop === 'x') {
       target.x = value;
+      return value;
     } else if (prop === 'y') {
       target.y = value;
+      return value;
     } else if (prop === 'score') {
       target.score = value;
+      return value;
       // TODO: update counter
     } else {
       console.warn('Unknown property setter:', prop);
@@ -73,9 +56,9 @@ const itemTypes = ['rock', 'basic'];
 function generateMapObjects() {
   for (let i=0; i<50; i++) {
     mapObjects.push({
-      x: getRandomInt(MAP_WIDTH),
-      y: getRandomInt(MAP_HEIGHT),
-      type: getRandomItem(itemTypes)
+      x: utils.getRandomInt(MAP_WIDTH),
+      y: utils.getRandomInt(MAP_HEIGHT),
+      type: utils.getRandomItem(itemTypes)
     });
   }
 }
@@ -97,7 +80,7 @@ generateTownObjects()
 const trees = [];
 for (let i=0; i<20; i++) {
   for (let j=0; j<12; j++) {
-    trees.push({x: i*100 + getRandomInt(30), y: j*100 + getRandomInt(30)});
+    trees.push({x: i*100 + utils.getRandomInt(30), y: j*100 + utils.getRandomInt(30)});
   }
 }
 
@@ -194,7 +177,7 @@ function showMerchantDialog() {
 function interact() {
   let found = false;
   mapObjects.some((o, i) => {
-    if (dist(o, player) < ACTIVITY_RADIUS) {
+    if (dist(o, player) < constants.ACTIVITY_RADIUS) {
       found = true;
       if (inTown) {
         // in town: interact with object
@@ -240,8 +223,8 @@ function switchScenes() {
   if (!inTown) {
     console.log('Returning to town...');
     // the town is always single screen
-    MAP_WIDTH = WIDTH;
-    MAP_HEIGHT = HEIGHT;
+    MAP_WIDTH = constants.WIDTH;
+    MAP_HEIGHT = constants.HEIGHT;
     generateTownObjects();
     player.x = 400;
     player.y = 150;
@@ -262,25 +245,25 @@ function applyMovement() {
   const yInViewPort = player.y - viewport.y;
   if (keysPressed.up && player.y > 0) {
     player.y = Math.max(0, player.y - effectiveSpeed);
-    if (yInViewPort <= VIEWPORT_SCROLL_MARGIN) {
+    if (yInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
       viewport.y = Math.max(0, viewport.y - effectiveSpeed);
     }
   }
   if (keysPressed.right && player.x < MAP_WIDTH) {
     player.x = Math.min(MAP_WIDTH, player.x + effectiveSpeed);
-    if (WIDTH - xInViewPort <= VIEWPORT_SCROLL_MARGIN) {
-      viewport.x = Math.min(MAP_WIDTH - WIDTH, viewport.x + effectiveSpeed);
+    if (constants.WIDTH - xInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
+      viewport.x = Math.min(MAP_WIDTH - constants.WIDTH, viewport.x + effectiveSpeed);
     }
   }
   if (keysPressed.down && player.y < MAP_HEIGHT) {
     player.y = Math.min(MAP_HEIGHT, player.y + effectiveSpeed);
-    if (HEIGHT - yInViewPort <= VIEWPORT_SCROLL_MARGIN) {
-      viewport.y = Math.min(MAP_HEIGHT - HEIGHT, viewport.y + effectiveSpeed);
+    if (constants.HEIGHT - yInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
+      viewport.y = Math.min(MAP_HEIGHT - constants.HEIGHT, viewport.y + effectiveSpeed);
     }
   }
   if (keysPressed.left && player.x > 0) {
     player.x = Math.max(0, player.x - effectiveSpeed);
-    if (xInViewPort <= VIEWPORT_SCROLL_MARGIN) {
+    if (xInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
       viewport.x = Math.max(0, viewport.x - effectiveSpeed);
     }
   }
@@ -295,12 +278,12 @@ function drawFrame(timestamp) {
   const yInViewPort = player.y - viewport.y;
 
   // clear both canvases
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
-  ctx2.clearRect(0, 0, WIDTH, HEIGHT);
+  ctx.clearRect(0, 0, constants.WIDTH, constants.HEIGHT);
+  ctx2.clearRect(0, 0, constants.WIDTH, constants.HEIGHT);
 
   // set main bg according to level (later maybe fancy gradients?)
-  ctx.fillStyle = inTown? townBGColor : forestBGColor;
-  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+  ctx.fillStyle = inTown? constants.townBGColor : constants.forestBGColor;
+  ctx.fillRect(0, 0, constants.WIDTH, constants.HEIGHT);
 
   // debug / alignment markers
   ctx.save();
@@ -315,7 +298,7 @@ function drawFrame(timestamp) {
   ctx.save();
   ctx.beginPath();
   ctx.fillStyle = 'rgba(206, 169, 20, 1)';
-  ctx.arc(xInViewPort, yInViewPort, PLAYER_SIZE, 0, Math.PI*2);
+  ctx.arc(xInViewPort, yInViewPort, constants.PLAYER_SIZE, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
 
@@ -344,10 +327,10 @@ $(document).ready(function() {
   const canvas2 = document.getElementById('secondary-canvas');
   secondaryCanvas = $(canvas2);
   secondaryCanvas.hide();
-  $(canvas).attr('height', HEIGHT);
-  $(canvas).attr('width', WIDTH);
-  $(canvas2).attr('height', HEIGHT);
-  $(canvas2).attr('width', WIDTH);
+  $(canvas).attr('height', constants.HEIGHT);
+  $(canvas).attr('width', constants.WIDTH);
+  $(canvas2).attr('height', constants.HEIGHT);
+  $(canvas2).attr('width', constants.WIDTH);
 
   debugLog = $('#debug-log');
   inventoryLog = $('#inventory-log');
