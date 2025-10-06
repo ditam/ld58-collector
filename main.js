@@ -288,21 +288,23 @@ function drawFrame(timestamp) {
   ctx.fill();
   ctx.restore();
 
-  // draw forest cover on secondary canvas
-  ctx2.fillStyle = 'green';
-  trees.forEach(t=>{
+  if (!inTown) {
+    // draw forest cover on secondary canvas
+    ctx2.fillStyle = 'green';
+    trees.forEach(t=>{
+      ctx2.beginPath();
+      ctx2.arc(t.x - viewport.x, t.y - viewport.y, 45, 0, Math.PI*2);
+      ctx2.fill();
+    })
+    // draw visibility aroud player
+    ctx2.save();
+    ctx2.filter = 'blur(20px)';
+    ctx2.globalCompositeOperation = 'destination-out';
     ctx2.beginPath();
-    ctx2.arc(t.x - viewport.x, t.y - viewport.y, 45, 0, Math.PI*2);
+    ctx2.arc(xInViewPort, yInViewPort, (VISION_SIZE+3)*20, 0, Math.PI*2);
     ctx2.fill();
-  })
-  // draw visibility aroud player
-  ctx2.save();
-  ctx2.filter = 'blur(20px)';
-  ctx2.globalCompositeOperation = 'destination-out';
-  ctx2.beginPath();
-  ctx2.arc(xInViewPort, yInViewPort, (VISION_SIZE+3)*20, 0, Math.PI*2);
-  ctx2.fill();
-  ctx2.restore();
+    ctx2.restore();
+  }
 
   requestAnimationFrame(drawFrame);
 }
