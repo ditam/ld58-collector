@@ -332,12 +332,15 @@ function interact() {
   if (!audioStarted) {
     songs[0].play();
     songs[0].addEventListener('ended', function() {
-      this.pause();
-      songs[1].play();
-      songs[1].addEventListener('ended', function() {
-        songs[1].currentTime = 0;
-        songs[1].play();
-      }, false);
+      songs[0].currentTime = 0;
+      songs[0].play();
+      // TODO: once we have multiple songs:
+      //this.pause();
+      //songs[1].play();
+      //songs[1].addEventListener('ended', function() {
+      //  songs[1].currentTime = 0;
+      //  songs[1].play();
+      //}, false);
     }, false);
     audioStarted = true;
   }
