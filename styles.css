@@ -5,6 +5,8 @@ body {
   font-weight: 400;
   font-style: normal;
   /*font-style: italic;*/
+
+  user-select: none;
 }
 
 canvas {
@@ -56,11 +58,14 @@ canvas:first-child {
 
 #merchant-screen {
   position: absolute;
-  top: 250px;
-  left: 150px;
+  top: 210px;
+  left: 225px;
   width: 500px;
-  background: gray;
 
+  border-radius: 8px;
+  padding: 6px;
+
+  background: gray;
   user-select: none;
 }
 

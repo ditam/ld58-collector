@@ -26,6 +26,10 @@ const player_internal = {
   score: 100,
 };
 
+if (window.isDebug) {
+  player_internal.score = 5034;
+}
+
 const viewport = {
   // x and y are offsets from (0, 0)
   // TODO: guards against negatives
@@ -194,6 +198,7 @@ function initMerchantDialog() {
     } else {
       player.score -= upgCost;
       PLAYER_SPEED++;
+      updateHeader();
     }
   });
   merchantScreen.find('#vision-upgrade .button').click(e => {
@@ -204,6 +209,7 @@ function initMerchantDialog() {
     } else {
       player.score -= upgCost;
       VISION_SIZE++;
+      updateHeader();
     }
   });
   merchantScreen.find('#tool-upgrade .button').click(e => {
@@ -214,6 +220,7 @@ function initMerchantDialog() {
     } else {
       player.score -= upgCost;
       TOOL_STRENGTH++;
+      updateHeader();
     }
   });
   merchantScreen.find('#hireling-upgrade .button').click(e => {
@@ -224,6 +231,7 @@ function initMerchantDialog() {
     } else {
       player.score -= upgCost;
       hasFollower = true;
+      updateHeader();
     }
   });
 
@@ -250,6 +258,9 @@ function showMerchantDialog() {
   } else if (inventory.some(i => i.type === 'poison')) {
     valueSum = 0;
     sMsg = 'There are poison mushrooms mixed in there. Toss the whole thing.';
+  } else if (forestVisits > 5 && valueSum) {
+    sMsg = 'Frankly, I wouldn\'t mind joining you myself. Together we could make much larger profits.';
+    merchantScreen.find('#hireling-upgrade').show();
   }
   if (!sMsg) {
     const firstItem = inventory.filter(i => i.type !== 'rock')[0];
@@ -310,6 +321,7 @@ function interact() {
   }
 }
 
+let forestVisits = 0;
 function switchScenes() {
   mapObjects.length = 0; // empties the map
   if (!inTown) {
@@ -324,6 +336,7 @@ function switchScenes() {
     generateTownObjects();
     secondaryCanvas.hide();
   } else {
+    forestVisits++;
     if (notYetAddedItemTypes.length) {
       availableItemTypes.push(notYetAddedItemTypes.shift());
     }
@@ -409,6 +422,16 @@ function drawFrame(timestamp) {
   ctx.arc(xInViewPort, yInViewPort, constants.PLAYER_SIZE, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
+
+  // draw follower if available
+  if (hasFollower) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.fillStyle = 'rgba(32, 14, 67, 1)';
+    ctx.arc(xInViewPort + 50, yInViewPort + 50, constants.PLAYER_SIZE, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
 
   if (!inTown) {
     // draw forest cover on secondary canvas
