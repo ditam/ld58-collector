@@ -536,7 +536,7 @@ function drawFrame(timestamp) {
   ctx.drawImage(
     playerSprite,
     utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
-    xInViewPort + 0.5, yInViewPort + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
+    xInViewPort - constants.PLAYER_SIZE/2 + 0.5, yInViewPort - constants.PLAYER_SIZE/2 + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
   );
   ctx.restore();
 
