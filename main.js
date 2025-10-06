@@ -54,6 +54,11 @@ const player = new Proxy(player_internal, {
 });
 
 const mapObjects = [];
+// we allow duplicates here as a simple probability distribution hack
+const availableItemTypes = ['rock', 'basic', 'basic'];
+const notYetAddedItemTypes = ['basic2', 'rare', 'poison', 'large', 'rare'];
+
+// TODO: there should be a single source
 const itemTypes = ['rock', 'basic', 'basic2', 'rare', 'poison', 'large'];
 const type2Name = {
   'rock': 'useless rock',
@@ -71,9 +76,18 @@ const type2Price = {
   'poison': 0,
   'large': 300
 }
+const type2Img = {
+  'rock': $('<img>').attr('src', 'img/rock.png').get(0),
+  'basic': $('<img>').attr('src', 'img/mushroom-basic.png').get(0),
+  'basic2': $('<img>').attr('src', 'img/mushroom-basic2.png').get(0),
+  'rare': $('<img>').attr('src', 'img/mushroom-rare.png').get(0),
+  'poison': $('<img>').attr('src', 'img/mushroom-poison.png').get(0),
+  'large': $('<img>').attr('src', 'img/mushroom-large.png').get(0)
+}
 itemTypes.forEach(t => {
   console.assert(type2Name.hasOwnProperty(t), 'Missing name for type:', t);
   console.assert(type2Price.hasOwnProperty(t), 'Missing cost for type:', t);
+  console.assert(type2Img.hasOwnProperty(t), 'Missing img for type:', t);
 });
 
 function generateMapObjects() {
@@ -81,7 +95,7 @@ function generateMapObjects() {
     mapObjects.push({
       x: utils.getRandomInt(MAP_WIDTH),
       y: utils.getRandomInt(MAP_HEIGHT),
-      type: utils.getRandomItem(itemTypes)
+      type: utils.getRandomItem(availableItemTypes)
     });
   }
 }
@@ -100,13 +114,25 @@ function generateTownObjects() {
 }
 generateTownObjects()
 
+
+const treeImages = [
+  $('<img>').attr('src', 'img/tree1.png').get(0),
+  $('<img>').attr('src', 'img/tree2.png').get(0),
+  $('<img>').attr('src', 'img/tree3.png').get(0),
+  $('<img>').attr('src', 'img/tree4.png').get(0)
+];
 // TODO: regen for each level
 const trees = [];
 for (let i=0; i<20; i++) {
   for (let j=0; j<12; j++) {
-    trees.push({x: i*100 + utils.getRandomInt(30), y: j*100 + utils.getRandomInt(30)});
+    trees.push({
+      x: i*100 + utils.getRandomInt(120),
+      y: j*100 + utils.getRandomInt(120),
+      img: utils.getRandomItem(treeImages)
+    });
   }
 }
+trees.sort((a, b) => a.y - b.y);
 
 let header;
 function updateHeader() {
@@ -297,7 +323,10 @@ function switchScenes() {
     generateTownObjects();
     secondaryCanvas.hide();
   } else {
-    console.log('Entering forest...');
+    if (notYetAddedItemTypes.length) {
+      availableItemTypes.push(notYetAddedItemTypes.shift());
+    }
+    console.log('Entering forest, available types:', availableItemTypes);
     MAP_WIDTH = 2000;
     MAP_HEIGHT = 1200;
     generateMapObjects();
@@ -353,12 +382,15 @@ function drawFrame(timestamp) {
   ctx.fillStyle = inTown? constants.townBGColor : constants.forestBGColor;
   ctx.fillRect(0, 0, constants.WIDTH, constants.HEIGHT);
 
-  // debug / alignment markers
+  // map objects
   ctx.save();
-  ctx.strokeStyle = 'black';
   ctx.fillStyle = 'black';
   mapObjects.forEach(o => {
-    ctx.fillRect(o.x - viewport.x, o.y - viewport.y, 10, 10);
+    if (type2Img.hasOwnProperty(o.type)) {
+      ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 32, 32);
+    } else {
+      ctx.fillRect(o.x - viewport.x, o.y - viewport.y, 10, 10);
+    }
   });
   ctx.restore();
 
@@ -374,13 +406,12 @@ function drawFrame(timestamp) {
     // draw forest cover on secondary canvas
     ctx2.fillStyle = 'green';
     trees.forEach(t=>{
-      ctx2.beginPath();
-      ctx2.arc(t.x - viewport.x, t.y - viewport.y, 45, 0, Math.PI*2);
-      ctx2.fill();
+      ctx2.drawImage(t.img, t.x-viewport.x + 0.5, t.y-viewport.y + 0.5, 128, 128);
+      //ctx2.arc(t.x - viewport.x, t.y - viewport.y, 45, 0, Math.PI*2);
     })
     // draw visibility aroud player
     ctx2.save();
-    ctx2.filter = 'blur(20px)';
+    ctx2.filter = 'blur(18px)';
     ctx2.globalCompositeOperation = 'destination-out';
     ctx2.beginPath();
     ctx2.arc(xInViewPort, yInViewPort, (VISION_SIZE+3)*20, 0, Math.PI*2);
@@ -409,8 +440,8 @@ $(document).ready(function() {
   ctx = canvas.getContext('2d');
   ctx2 = canvas2.getContext('2d');
 
-  ctx.fillStyle = '#2194caff';
-  ctx.strokeStyle = 'green';
+  ctx.fillStyle = 'black';
+  ctx.strokeStyle = 'black';
   ctx.lineWidth = 1;
 
   updateHeader();

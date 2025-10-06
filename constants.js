@@ -6,8 +6,8 @@ const params = {
   // movement within this margin attempts to scroll the viewport if possible
   VIEWPORT_SCROLL_MARGIN: 150,
 
-  forestBGColor: 'rgb(50, 100, 50)',
-  townBGColor: 'rgba(93, 83, 49, 1)',
+  forestBGColor: '#3A656B',
+  townBGColor: '#497b81ff',
 };
 
 export default params;
