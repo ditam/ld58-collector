@@ -54,13 +54,26 @@ const player = new Proxy(player_internal, {
 });
 
 const mapObjects = [];
-const itemTypes = ['rock', 'basic'];
+const itemTypes = ['rock', 'basic', 'basic2', 'rare', 'poison', 'large'];
 const type2Name = {
   'rock': 'useless rock',
-  'basic': 'Common Boletus'
+  'basic': 'Common Boletus',
+  'basic2': 'White Trumpet',
+  'rare': 'Autumn Morel',
+  'poison': 'Funky Conecap',
+  'large': 'Sprawling Maitake'
+}
+const type2Price = {
+  'rock': 0,
+  'basic': 20,
+  'basic2': 30,
+  'rare': 250,
+  'poison': 0,
+  'large': 300
 }
 itemTypes.forEach(t => {
-  console.assert(type2Name[t], 'Missing name for type:', t);
+  console.assert(type2Name.hasOwnProperty(t), 'Missing name for type:', t);
+  console.assert(type2Price.hasOwnProperty(t), 'Missing cost for type:', t);
 });
 
 function generateMapObjects() {
@@ -191,9 +204,45 @@ function initMerchantDialog() {
 };
 
 function showMerchantDialog() {
-  merchantScreen.show();
   // inventory is automatically sold when visiting the merchant:
+  let valueSum = 0;
   const toolBonus = TOOL_STRENGTH * 5;
+  inventory.forEach(i => {
+    valueSum+=type2Price[i.type] + toolBonus;
+  });
+  let sMsg;
+  // special cases make the whole basket worth 0:
+  // - mostly rocks
+  // - poison included
+  if (inventory.length === 0) {
+    valueSum = 0;
+    sMsg = 'Bring me fresh mushrooms from the forest. I\'ll pay a fair price.';
+  } else if (inventory.filter(i => i.type === 'rock').length >= inventory.length / 2) {
+    valueSum = 0;
+    sMsg = 'This is mostly rocks! I\'m not interested.';
+  } else if (inventory.some(i => i.type === 'poison')) {
+    valueSum = 0;
+    sMsg = 'There are poison mushrooms mixed in there. Toss the whole thing.';
+  }
+  if (!sMsg) {
+    const firstItem = inventory.filter(i => i.type !== 'rock')[0];
+    const sName = type2Name[firstItem.type];
+    sMsg = getRandomItem([
+      `What a beautiful {sName}! I'll pay you a fair price.`,
+      `Cooks love the {sName}, just fry it up with some butter.`,
+      `Fresh {sName}? This time of the year? Sold.`,
+      `A great batch, I'll buy it all.`,
+      `Ah, the {sName}. I bring these to Perthshire to re-sell.`,
+    ]);
+  }
+  player.score += valueSum;
+  inventory.length = 0;
+  updateHeader();
+
+  merchantScreen.find('#p1').text(sMsg);
+  merchantScreen.find('#p2').text('Placeholder - lore.'); // FIXME
+
+  merchantScreen.show();
 }
 
 function interact() {
@@ -214,6 +263,7 @@ function interact() {
           // FIXME: show error
           // FIXME: play error sound
           // TODO: tool size should have effect beyond 2 as well - increased item values maybe?
+          console.log('Leaving large item.');
           return;
         }
         const item = mapObjects.splice(i, 1)[0];
@@ -251,6 +301,7 @@ function switchScenes() {
     MAP_WIDTH = 2000;
     MAP_HEIGHT = 1200;
     generateMapObjects();
+    merchantScreen.hide();
     secondaryCanvas.show();
   }
   inTown = !inTown;
