@@ -1,3 +1,4 @@
+import ui from './ui.js';
 import utils from './utils.js';
 import constants from './constants.js';
 
@@ -82,13 +83,6 @@ for (let i=0; i<20; i++) {
   for (let j=0; j<12; j++) {
     trees.push({x: i*100 + utils.getRandomInt(30), y: j*100 + utils.getRandomInt(30)});
   }
-}
-
-function dist(a, b) {
-  console.assert(a.hasOwnProperty('x') && a.hasOwnProperty('y') && b.hasOwnProperty('x') && b.hasOwnProperty('y'), 'Invalid dist targets:', a, b);
-  const dX = a.x-b.x;
-  const dY = a.y-b.y;
-  return Math.sqrt(dX*dX + dY*dY);
 }
 
 let merchantScreen;
@@ -177,7 +171,7 @@ function showMerchantDialog() {
 function interact() {
   let found = false;
   mapObjects.some((o, i) => {
-    if (dist(o, player) < constants.ACTIVITY_RADIUS) {
+    if (utils.dist(o, player) < constants.ACTIVITY_RADIUS) {
       found = true;
       if (inTown) {
         // in town: interact with object
@@ -210,14 +204,6 @@ function interact() {
   }
 }
 
-const keysPressed = {
-  up:    false,
-  right: false,
-  down:  false,
-  left:  false,
-  e:     false,
-};
-
 function switchScenes() {
   mapObjects.length = 0; // empties the map
   if (!inTown) {
@@ -243,25 +229,25 @@ function applyMovement() {
   const effectiveSpeed = PLAYER_SPEED + 3;
   const xInViewPort = player.x - viewport.x;
   const yInViewPort = player.y - viewport.y;
-  if (keysPressed.up && player.y > 0) {
+  if (ui.keysPressed.up && player.y > 0) {
     player.y = Math.max(0, player.y - effectiveSpeed);
     if (yInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
       viewport.y = Math.max(0, viewport.y - effectiveSpeed);
     }
   }
-  if (keysPressed.right && player.x < MAP_WIDTH) {
+  if (ui.keysPressed.right && player.x < MAP_WIDTH) {
     player.x = Math.min(MAP_WIDTH, player.x + effectiveSpeed);
     if (constants.WIDTH - xInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
       viewport.x = Math.min(MAP_WIDTH - constants.WIDTH, viewport.x + effectiveSpeed);
     }
   }
-  if (keysPressed.down && player.y < MAP_HEIGHT) {
+  if (ui.keysPressed.down && player.y < MAP_HEIGHT) {
     player.y = Math.min(MAP_HEIGHT, player.y + effectiveSpeed);
     if (constants.HEIGHT - yInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
       viewport.y = Math.min(MAP_HEIGHT - constants.HEIGHT, viewport.y + effectiveSpeed);
     }
   }
-  if (keysPressed.left && player.x > 0) {
+  if (ui.keysPressed.left && player.x > 0) {
     player.x = Math.max(0, player.x - effectiveSpeed);
     if (xInViewPort <= constants.VIEWPORT_SCROLL_MARGIN) {
       viewport.x = Math.max(0, viewport.x - effectiveSpeed);
@@ -343,61 +329,9 @@ $(document).ready(function() {
   ctx.lineWidth = 1;
 
   initMerchantDialog();
-
-  document.addEventListener('keydown', event => {
-    switch(event.code) {
-      case 'KeyW':
-      case 'ArrowUp':
-        event.preventDefault();
-        keysPressed.up = true;
-        break;
-      case 'KeyD':
-      case 'ArrowRight':
-        event.preventDefault();
-        keysPressed.right = true;
-        break;
-      case 'KeyS':
-      case 'ArrowDown':
-        event.preventDefault();
-        keysPressed.down = true;
-        break;
-      case 'KeyA':
-      case 'ArrowLeft':
-        event.preventDefault();
-        keysPressed.left = true;
-        break;
-      case 'KeyE':
-        keysPressed.e = true;
-        interact();
-        break;
-      case 'KeyL':
-        switchScenes();
-        break;
-    }
-  });
-
-  document.addEventListener('keyup', event => {
-    switch(event.code) {
-      case 'KeyW':
-      case 'ArrowUp':
-        keysPressed.up = false;
-        break;
-      case 'KeyD':
-      case 'ArrowRight':
-        keysPressed.right = false;
-        break;
-      case 'KeyS':
-      case 'ArrowDown':
-        keysPressed.down = false;
-        break;
-      case 'KeyA':
-      case 'ArrowLeft':
-        keysPressed.left = false;
-        break;
-      case 'KeyE':
-        keysPressed.e = false;
-        break;
-    }
+  ui.init({
+    interact: interact,
+    switchScenes: switchScenes
   });
 
   drawFrame();
