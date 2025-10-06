@@ -200,8 +200,6 @@ function getUpgradePrice(name, level) {
 function initMerchantDialog() {
   merchantScreen = $('#merchant-screen');
   merchantScreen.hide();
-  merchantScreen.find('#p1').text('Welcome, Stranger!');
-  merchantScreen.find('#p2').text('Are you here for the mushroom season?');
 
   merchantScreen.find('#hireling-upgrade').hide();
 
@@ -272,6 +270,12 @@ function initMerchantDialog() {
   // TODO: upgrade button to show next level price
 };
 
+const loreMsgs = [
+  'If you bring me fresh mushrooms from the forest, I\'ll buy them for a fair price.',
+  'Have you heard of the forest god, the Mondrokko? He is the patron of mushroom pickers.',
+  'Mondrokko is not only a patron - he also punishes greedy travellers!'
+];
+
 function showMerchantDialog() {
   // inventory is automatically sold when visiting the merchant:
   let valueSum = 0;
@@ -283,7 +287,9 @@ function showMerchantDialog() {
   // special cases make the whole basket worth 0:
   // - mostly rocks
   // - poison included
-  if (inventory.length === 0) {
+  if (forestVisits === 0) {
+    sMsg = 'Welcome, Stranger! Are you here for the mushroom season?';
+  } else if (inventory.length === 0) {
     valueSum = 0;
     sMsg = 'Bring me fresh mushrooms from the forest. I\'ll pay a fair price.';
   } else if (inventory.filter(i => i.type === 'rock').length >= inventory.length / 2) {
@@ -312,7 +318,7 @@ function showMerchantDialog() {
   updateHeader();
 
   merchantScreen.find('#p1').text(sMsg);
-  merchantScreen.find('#p2').text('Placeholder - lore.'); // FIXME
+  merchantScreen.find('#p2').text(loreMsgs[forestVisits % loreMsgs.length]);
 
   merchantScreen.show();
 }
