@@ -57,7 +57,7 @@ const player = new Proxy(player_internal, {
   },
 });
 
-const mapObjects = [];
+let mapObjects = [];
 // we allow duplicates here as a simple probability distribution hack
 const availableItemTypes = ['rock', 'basic', 'basic'];
 const notYetAddedItemTypes = ['basic2', 'rare', 'poison', 'large', 'rare'];
@@ -154,7 +154,7 @@ const treeImages = [
   $('<img>').attr('src', 'img/tree4.png').get(0)
 ];
 // TODO: regen for each level
-const trees = [];
+let trees = [];
 for (let i=0; i<=20; i++) {
   for (let j=0; j<=24; j++) {
     trees.push({
@@ -390,11 +390,34 @@ function switchScenes() {
     generateMapObjects();
     merchantScreen.hide();
     secondaryCanvas.show();
+
+    if (hasFollower) {
+      // clear everything in top middle
+      mapObjects = mapObjects.filter(o => {
+        return (o.y > constants.HEIGHT || o.x < 700 || o.x > 1300);
+      });
+      trees = trees.filter(o => {
+        return (o.y > constants.HEIGHT || o.x < 700 || o.x > 1300);
+      });
+      // add mushroom circle axis x=1000 y=300
+      mapObjects.push({ type: 'basic2', x: 1000, y: 200 });
+      mapObjects.push({ type: 'basic2', x: 1125, y: 250 });
+      mapObjects.push({ type: 'basic2', x: 1160, y: 300 });
+      mapObjects.push({ type: 'basic2', x: 1125, y: 350 });
+      mapObjects.push({ type: 'basic2', x: 1000, y: 400 });
+      mapObjects.push({ type: 'basic2', x:  875, y: 350 });
+      mapObjects.push({ type: 'basic2', x:  840, y: 300 });
+      mapObjects.push({ type: 'basic2', x:  875, y: 250 });
+    }
   }
   inTown = !inTown;
 }
 
+let movementLocked = false;
 function applyMovement() {
+  if (movementLocked) {
+    return;
+  }
   const effectiveSpeed = PLAYER_SPEED + 3;
   const xInViewPort = player.x - viewport.x;
   const yInViewPort = player.y - viewport.y;
@@ -422,10 +445,20 @@ function applyMovement() {
       viewport.x = Math.max(0, viewport.x - effectiveSpeed);
     }
   }
+
+  if (hasFollower && !inTown && viewport.y < 500 && viewport.x > 400) {
+    movementLocked = true;
+    // FIXME: move view incrementally
+    viewport.x = 510;
+    viewport.y = 20;
+    player.x = 720;
+    player.y = 380;
+  }
 }
 
 let debugLog, inventoryLog;
 let frameCount = 0;
+let finaleStartTime;
 function drawFrame(timestamp) {
   frameCount++;
   applyMovement();
@@ -450,13 +483,18 @@ function drawFrame(timestamp) {
   ctx.fillStyle = 'black';
   mapObjects.forEach(o => {
     if (type2Img.hasOwnProperty(o.type)) {
-      if (o.type === 'merchant' || o.type === 'exit') {
+      if (o.type === 'merchant' && !hasFollower) {
+        ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 64, 64);
+      } else if (o.type === 'exit') {
         ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 64, 64);
       } else if (o.type === 'town-tree1' || o.type === 'town-tree3') {
         ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 128, 128);
       } else if (o.type === 'town-bg') {
         ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 600, 500);
       } else {
+        if (o.type === 'merchant') {
+          return;
+        }
         ctx.drawImage(type2Img[o.type], o.x-viewport.x + 0.5, o.y-viewport.y + 0.5, 32, 32);
       }
     } else {
@@ -480,13 +518,42 @@ function drawFrame(timestamp) {
 
   // draw follower if available
   if (hasFollower) {
-    ctx.save();
-    ctx.drawImage(
-      merchantSprite,
-      utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
-      xInViewPort + 0.5, yInViewPort + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
-    );
-    ctx.restore();
+    if (!movementLocked) {
+      ctx.save();
+      ctx.drawImage(
+        merchantSprite,
+        utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
+        xInViewPort + 50 + 0.5, yInViewPort + 50 + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
+      );
+      ctx.restore();
+    } else {
+      // we are in the finale
+      if (!finaleStartTime) {
+        finaleStartTime = timestamp;
+        setTimeout(function() {
+          const finalMsg = $('<div>').addClass('finale-msg').text(
+            '<Merchant:> Oh no! Seems like I was the greedy adventurer! And you must have been the Mondrokko all along!'
+          );
+          finalMsg.insertAfter(secondaryCanvas);
+        }, 2000);
+      }
+
+      if (finaleStartTime && timestamp - finaleStartTime > 15*1000) {
+        // show transformed mushroom
+        ctx.save();
+        ctx.drawImage(type2Img['poison'], 1000 - viewport.x + 0.5, 300 - viewport.y + 0.5, 64, 64);
+        ctx.restore();
+      } else {
+        // show trapped merchant
+        ctx.save();
+        ctx.drawImage(
+          merchantSprite,
+          utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
+          1000 - viewport.x + 0.5, 300 - viewport.y + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
+        );
+        ctx.restore();
+      }
+    }
   }
 
   if (!inTown) {

@@ -99,3 +99,12 @@ canvas:first-child {
 #merchant-screen #upgrades-list .upgrade .price {
   right: 50px;
 }
+
+.finale-msg {
+  position: absolute;
+  padding: 20px;
+  border-radius: 8px;
+  background: gray;
+  top: 100px;
+  left: 250px;
+}
