@@ -306,7 +306,13 @@ function interact() {
         }
         const item = mapObjects.splice(i, 1)[0];
         console.log('found item:', item);
-        inventory.push({type: item.type});
+        if (hasFollower) {
+          // sell immediately
+          player.score += type2Price[item.type];
+        } else {
+          // put in backpack
+          inventory.push({type: item.type});
+        }
         updateHeader();
         if (inventory.length >= maxItems) {
           // TODO: somehow explain to user why they go back? Simple confirm message?
