@@ -317,7 +317,22 @@ function showMerchantDialog() {
   merchantScreen.show();
 }
 
+// TODO: move this to onclick of cover screen
+let audioStarted = false;
 function interact() {
+  if (!audioStarted) {
+    songs[0].play();
+    songs[0].addEventListener('ended', function() {
+      this.pause();
+      songs[1].play();
+      songs[1].addEventListener('ended', function() {
+        songs[1].currentTime = 0;
+        songs[1].play();
+      }, false);
+    }, false);
+    audioStarted = true;
+  }
+
   let found = false;
   mapObjects.some((o, i) => {
     if (utils.dist(o, player) < constants.ACTIVITY_RADIUS) {
@@ -576,8 +591,13 @@ function drawFrame(timestamp) {
   requestAnimationFrame(drawFrame);
 }
 
+let songs, sounds;
 let secondaryCanvas;
 $(document).ready(function() {
+  songs = [
+    new Audio('bgMusic1.mp3')
+  ];
+
   const canvas = document.getElementById('main-canvas');
   const canvas2 = document.getElementById('secondary-canvas');
   secondaryCanvas = $(canvas2);
