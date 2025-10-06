@@ -346,8 +346,9 @@ function interact() {
   }
 
   let found = false;
+  const rangeModifier = inTown? 2 : 1;
   mapObjects.some((o, i) => {
-    if (utils.dist(o, player) < constants.ACTIVITY_RADIUS) {
+    if (utils.dist(o, player) < constants.ACTIVITY_RADIUS * rangeModifier) {
       found = true;
       if (inTown) {
         // in town: interact with object
