@@ -55,6 +55,13 @@ const player = new Proxy(player_internal, {
 
 const mapObjects = [];
 const itemTypes = ['rock', 'basic'];
+const type2Name = {
+  'rock': 'useless rock',
+  'basic': 'Common Boletus'
+}
+itemTypes.forEach(t => {
+  console.assert(type2Name[t], 'Missing name for type:', t);
+});
 
 function generateMapObjects() {
   for (let i=0; i<50; i++) {
