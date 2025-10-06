@@ -569,7 +569,7 @@ function drawFrame(timestamp) {
       if (finaleStartTime && timestamp - finaleStartTime > 15*1000) {
         // show transformed mushroom
         ctx.save();
-        ctx.drawImage(type2Img['poison'], 1000 - viewport.x + 0.5, 300 - viewport.y + 0.5, 64, 64);
+        ctx.drawImage(type2Img['poison'], 1000 - viewport.x + 0.5 - 32, 300 - viewport.y + 0.5 - 32, 64, 64);
         ctx.restore();
       } else {
         // show trapped merchant
