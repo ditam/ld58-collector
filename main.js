@@ -191,10 +191,10 @@ function getUpgradePrice(name, level) {
     return 9999;
   }
   return {
-    'inventory': [0, 1, 2, 3, 4],
-    'speed':     [0, 1, 2, 3, 4],
-    'vision':    [0, 1, 2, 3, 4],
-    'tool':      [0, 1, 2, 3, 4]
+    'inventory': [0, 20, 50, 300, 800],
+    'speed':     [0, 200, 500, 1500, 5000],
+    'vision':    [0, 50, 100, 200, 800],
+    'tool':      [0, 250, 500, 750, 1500]
   }[name][level];
 }
 function initMerchantDialog() {
@@ -203,9 +203,8 @@ function initMerchantDialog() {
 
   merchantScreen.find('#hireling-upgrade').hide();
 
-  // TODO: display upg prices
   merchantScreen.find('#inventory-upgrade .button').click(e => {
-    const upgCost = getUpgradePrice('inventory', INVENTORY_SIZE+1);
+    const upgCost = getUpgradePrice('inventory', INVENTORY_SIZE);
     if (player.score < upgCost) {
       console.log('Cant afford inventory upgrade:', upgCost);
       // FIXME: play error sound
@@ -219,7 +218,7 @@ function initMerchantDialog() {
     }
   });
   merchantScreen.find('#speed-upgrade .button').click(e => {
-    const upgCost = getUpgradePrice('speed', PLAYER_SPEED+1);
+    const upgCost = getUpgradePrice('speed', PLAYER_SPEED);
     if (player.score < upgCost) {
       console.log('Cant afford speed upgrade:', upgCost);
       // FIXME: play error sound
@@ -231,7 +230,7 @@ function initMerchantDialog() {
     }
   });
   merchantScreen.find('#vision-upgrade .button').click(e => {
-    const upgCost = getUpgradePrice('vision', VISION_SIZE+1);
+    const upgCost = getUpgradePrice('vision', VISION_SIZE);
     if (player.score < upgCost) {
       console.log('Cant afford vision upgrade:', upgCost);
       // FIXME: play error sound
@@ -243,7 +242,7 @@ function initMerchantDialog() {
     }
   });
   merchantScreen.find('#tool-upgrade .button').click(e => {
-    const upgCost = getUpgradePrice('tool', TOOL_STRENGTH+1);
+    const upgCost = getUpgradePrice('tool', TOOL_STRENGTH);
     if (player.score < upgCost) {
       console.log('Cant afford tool upgrade:', upgCost);
       // FIXME: play error sound
@@ -266,8 +265,6 @@ function initMerchantDialog() {
       merchantScreen.hide();
     }
   });
-
-  // TODO: upgrade button to show next level price
 };
 
 const loreMsgs = [
@@ -277,6 +274,12 @@ const loreMsgs = [
 ];
 
 function showMerchantDialog() {
+  // update current prices:
+  merchantScreen.find('#inventory-upgrade .price').text(getUpgradePrice('inventory', INVENTORY_SIZE));
+  merchantScreen.find('#speed-upgrade .price').text(getUpgradePrice('speed', PLAYER_SPEED));
+  merchantScreen.find('#vision-upgrade .price').text(getUpgradePrice('vision', VISION_SIZE));
+  merchantScreen.find('#tool-upgrade .price').text(getUpgradePrice('tool', TOOL_STRENGTH));
+
   // inventory is automatically sold when visiting the merchant:
   let valueSum = 0;
   const toolBonus = TOOL_STRENGTH * 5;
@@ -439,7 +442,7 @@ function applyMovement() {
   if (movementLocked) {
     return;
   }
-  const effectiveSpeed = PLAYER_SPEED + 3;
+  const effectiveSpeed = PLAYER_SPEED + 1;
   const xInViewPort = player.x - viewport.x;
   const yInViewPort = player.y - viewport.y;
   if (ui.keysPressed.up && player.y > 0) {
