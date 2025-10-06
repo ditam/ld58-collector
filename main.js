@@ -123,11 +123,12 @@ const treeImages = [
 ];
 // TODO: regen for each level
 const trees = [];
-for (let i=0; i<20; i++) {
-  for (let j=0; j<12; j++) {
+for (let i=0; i<=20; i++) {
+  for (let j=0; j<=24; j++) {
     trees.push({
-      x: i*100 + utils.getRandomInt(120),
-      y: j*100 + utils.getRandomInt(120),
+      // TODO: move rand ranges to params
+      x: i*100 -75 + utils.getRandomInt(140),
+      y: j*100 -75 + utils.getRandomInt(140),
       img: utils.getRandomItem(treeImages)
     });
   }
@@ -328,7 +329,11 @@ function switchScenes() {
     }
     console.log('Entering forest, available types:', availableItemTypes);
     MAP_WIDTH = 2000;
-    MAP_HEIGHT = 1200;
+    MAP_HEIGHT = 2400;
+    viewport.x = 600;
+    viewport.y = 2400 - constants.HEIGHT;
+    player.x = 1000;
+    player.y = 2300;
     generateMapObjects();
     merchantScreen.hide();
     secondaryCanvas.show();
