@@ -573,6 +573,10 @@ function drawFrame(timestamp) {
             '<Merchant:> Oh no! Seems like I was the greedy adventurer! And you must have been the Mondrokko all along!'
           );
           finalMsg.insertAfter(secondaryCanvas);
+          setTimeout(function() {
+            finalMsg.addClass('shifted');
+            finalMsg.text('The end. Thank you for playing!');
+          }, 20000);
         }, 2000);
       }
 

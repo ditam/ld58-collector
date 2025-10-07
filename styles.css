@@ -141,3 +141,7 @@ canvas:first-child {
   top: 100px;
   left: 125px;
 }
+
+.finale-msg.shifted {
+  left: 380px;
+}
