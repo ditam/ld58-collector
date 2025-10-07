@@ -319,7 +319,7 @@ function showMerchantDialog() {
   if (!sMsg) {
     const firstItem = inventory.filter(i => i.type !== 'rock')[0];
     const sName = type2Name[firstItem.type];
-    sMsg = getRandomItem([
+    sMsg = utils.getRandomItem([
       `What a beautiful {sName}! I'll pay you a fair price.`,
       `Cooks love the {sName}, just fry it up with some butter.`,
       `Fresh {sName}? This time of the year? Sold.`,
