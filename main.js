@@ -320,11 +320,11 @@ function showMerchantDialog() {
     const firstItem = inventory.filter(i => i.type !== 'rock')[0];
     const sName = type2Name[firstItem.type];
     sMsg = utils.getRandomItem([
-      `What a beautiful {sName}! I'll pay you a fair price.`,
-      `Cooks love the {sName}, just fry it up with some butter.`,
-      `Fresh {sName}? This time of the year? Sold.`,
+      `What a beautiful ${sName}! I'll pay you a fair price.`,
+      `Cooks love the ${sName}, just fry it up with some butter.`,
+      `Fresh ${sName}? This time of the year? Sold.`,
       `A great batch, I'll buy it all.`,
-      `Ah, the {sName}. I bring these to Perthshire to re-sell.`,
+      `Ah, the ${sName}. I bring these to Perthshire to re-sell.`,
     ]);
   }
   player.score += valueSum;
