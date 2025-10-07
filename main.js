@@ -351,7 +351,7 @@ function showMerchantDialog() {
 
 function interact() {
   let found = false;
-  const rangeModifier = inTown? 2 : 1;
+  const rangeModifier = inTown? 3 : 1;
   mapObjects.some((o, i) => {
     if (utils.dist(o, player) < constants.ACTIVITY_RADIUS * rangeModifier) {
       found = true;

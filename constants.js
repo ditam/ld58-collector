@@ -2,7 +2,7 @@ const params = {
   WIDTH: 960,
   HEIGHT: 540,
   PLAYER_SIZE: 64,
-  ACTIVITY_RADIUS: 50,
+  ACTIVITY_RADIUS: 60,
   // movement within this margin attempts to scroll the viewport if possible
   VIEWPORT_SCROLL_MARGIN: 150,
 
