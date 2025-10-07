@@ -9,6 +9,33 @@ body {
   user-select: none;
 }
 
+#cover-image {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  width: 960px;
+  height: 540px;
+  background-color: #BF785F;
+  color: #361B2D;
+
+  font-family: "IM Fell DW Pica", serif;
+  font-weight: 400;
+  font-style: normal;
+  text-align: center;
+
+  cursor: pointer;
+}
+
+#cover-image #main-title {
+  font-size: 40px;
+  margin-top: 190px;
+}
+#cover-image #loader {
+  font-size: 20px;
+  margin-top: 25px;
+}
+
 canvas {
   /*
   // We must not have any background colour, otherwise the layered secondary canvas would cover the main.

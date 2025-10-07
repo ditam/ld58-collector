@@ -337,25 +337,7 @@ function showMerchantDialog() {
   merchantScreen.show();
 }
 
-// TODO: move this to onclick of cover screen
-let audioStarted = false;
 function interact() {
-  if (!audioStarted) {
-    songs[0].play();
-    songs[0].addEventListener('ended', function() {
-      songs[0].currentTime = 0;
-      songs[0].play();
-      // TODO: once we have multiple songs:
-      //this.pause();
-      //songs[1].play();
-      //songs[1].addEventListener('ended', function() {
-      //  songs[1].currentTime = 0;
-      //  songs[1].play();
-      //}, false);
-    }, false);
-    audioStarted = true;
-  }
-
   let found = false;
   const rangeModifier = inTown? 2 : 1;
   mapObjects.some((o, i) => {
@@ -626,6 +608,13 @@ $(document).ready(function() {
     new Audio('bgMusic1.mp3')
   ];
 
+  sounds = [
+    new Audio('error.mp3'),
+    new Audio('pickup.ogg'),
+    new Audio('money.ogg'),
+    new Audio('upgrade.ogg')
+  ]
+
   const canvas = document.getElementById('main-canvas');
   const canvas2 = document.getElementById('secondary-canvas');
   secondaryCanvas = $(canvas2);
@@ -645,6 +634,38 @@ $(document).ready(function() {
   ctx.fillStyle = 'black';
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 1;
+
+  const cover = $('#cover-image');
+  cover.click(function() {
+    cover.remove();
+    songs[0].play();
+    songs[0].addEventListener('ended', function() {
+      songs[0].currentTime = 0;
+      songs[0].play();
+      // TODO: once we have multiple songs:
+      //this.pause();
+      //songs[1].play();
+      //songs[1].addEventListener('ended', function() {
+      //  songs[1].currentTime = 0;
+      //  songs[1].play();
+      //}, false);
+    }, false);
+  });
+
+  let audioLoadCount = 0;
+  let audioCountTotal = songs.length + sounds.length;
+  $('#loadCountTotal').text(audioCountTotal);
+  function countWhenLoaded(audioElement) {
+    audioElement.addEventListener('canplaythrough', function() {
+      audioLoadCount++;
+      $('#loadCount').text(audioLoadCount);
+      if (audioLoadCount === audioCountTotal) {
+        $('#loader').html('Click to start.');
+      }
+    }, false);
+  }
+  songs.forEach(countWhenLoaded);
+  sounds.forEach(countWhenLoaded);
 
   updateHeader();
   initMerchantDialog();
