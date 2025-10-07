@@ -218,8 +218,9 @@ function initMerchantDialog() {
     const upgCost = getUpgradePrice('inventory', INVENTORY_SIZE);
     if (player.score < upgCost) {
       console.log('Cant afford inventory upgrade:', upgCost);
-      // FIXME: play error sound
+      sounds[0].play();
     } else {
+      sounds[3].play();
       player.score -= upgCost;
       INVENTORY_SIZE++;
       maxItems = INVENTORY_SIZE+5;
@@ -232,8 +233,9 @@ function initMerchantDialog() {
     const upgCost = getUpgradePrice('speed', PLAYER_SPEED);
     if (player.score < upgCost) {
       console.log('Cant afford speed upgrade:', upgCost);
-      // FIXME: play error sound
+      sounds[0].play();
     } else {
+      sounds[3].play();
       player.score -= upgCost;
       PLAYER_SPEED++;
       updateHeader();
@@ -244,8 +246,9 @@ function initMerchantDialog() {
     const upgCost = getUpgradePrice('vision', VISION_SIZE);
     if (player.score < upgCost) {
       console.log('Cant afford vision upgrade:', upgCost);
-      // FIXME: play error sound
+      sounds[0].play();
     } else {
+      sounds[3].play();
       player.score -= upgCost;
       VISION_SIZE++;
       updateHeader();
@@ -256,8 +259,9 @@ function initMerchantDialog() {
     const upgCost = getUpgradePrice('tool', TOOL_STRENGTH);
     if (player.score < upgCost) {
       console.log('Cant afford tool upgrade:', upgCost);
-      // FIXME: play error sound
+      sounds[0].play();
     } else {
+      sounds[3].play();
       player.score -= upgCost;
       TOOL_STRENGTH++;
       updateHeader();
@@ -268,8 +272,9 @@ function initMerchantDialog() {
     const upgCost = 5000;
     if (player.score < upgCost) {
       console.log('Cant afford hireling upgrade:', upgCost);
-      // FIXME: play error sound
+      sounds[0].play();
     } else {
+      sounds[3].play();
       player.score -= upgCost;
       hasFollower = true;
       updateHeader();
@@ -316,6 +321,11 @@ function showMerchantDialog() {
     sMsg = 'Frankly, I wouldn\'t mind joining you myself. Together we could make much larger profits.';
     merchantScreen.find('#hireling-upgrade').show();
   }
+
+  if (valueSum) {
+    sounds[2].play();
+  }
+
   if (!sMsg) {
     const firstItem = inventory.filter(i => i.type !== 'rock')[0];
     const sName = type2Name[firstItem.type];
@@ -345,6 +355,7 @@ function interact() {
       found = true;
       if (inTown) {
         // in town: interact with object
+        sounds[1].play();
         if (o.type === 'exit') {
           switchScenes();
         } else if (o.type === 'merchant') {
@@ -353,9 +364,7 @@ function interact() {
       } else {
         // in forest: remove item from map and move to inventory
         if (o.type === 'large' && TOOL_STRENGTH < 2) {
-          // FIXME: show error
-          // FIXME: play error sound
-          // TODO: tool size should have effect beyond 2 as well - increased item values maybe?
+          sounds[0].play();
           showNotificationMessage('Too large for my digging tool.');
           console.log('Leaving large item.');
           return;
@@ -364,11 +373,13 @@ function interact() {
         console.log('found item:', item);
         if (hasFollower) {
           // sell immediately
+          sounds[2].play();
           const price = type2Price[item.type];
           showNotificationMessage('+' + price);
           player.score += price;
         } else {
           // put in backpack
+          sounds[1].play();
           showNotificationMessage('Picked up ' + type2Name[item.type]);
           inventory.push({type: item.type});
         }
@@ -613,7 +624,7 @@ $(document).ready(function() {
     new Audio('pickup.ogg'),
     new Audio('money.ogg'),
     new Audio('upgrade.ogg')
-  ]
+  ];
 
   const canvas = document.getElementById('main-canvas');
   const canvas2 = document.getElementById('secondary-canvas');
