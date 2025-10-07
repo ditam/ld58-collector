@@ -286,7 +286,9 @@ function initMerchantDialog() {
 const loreMsgs = [
   'If you bring me fresh mushrooms from the forest, I\'ll buy them for a fair price.',
   'Have you heard of the forest god, the Mondrokko? He is the patron of mushroom pickers.',
-  'Mondrokko is not only a patron - he also punishes greedy travellers!'
+  'Mondrokko is not only a patron - he also punishes greedy travellers!',
+  'The forest can be a scary place.',
+  'I\'m sure the forest spirits would not like you to take all the mushrooms.'
 ];
 
 function showMerchantDialog() {
