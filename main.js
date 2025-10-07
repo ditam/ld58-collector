@@ -484,9 +484,9 @@ function applyMovement() {
     }
   }
 
-  if (hasFollower && !inTown && viewport.y < 500 && viewport.x > 400) {
+  if (hasFollower && !inTown && utils.dist(player, {x: 1000, y: 300}) < 120) {
     movementLocked = true;
-    // FIXME: move view incrementally
+    // TODO: move view incrementally
     viewport.x = 510;
     viewport.y = 20;
     player.x = 720;
@@ -587,7 +587,7 @@ function drawFrame(timestamp) {
         ctx.drawImage(
           merchantSprite,
           utils.getSpriteOffset(frameCount, 'player'), 0, 32, 32,
-          1000 - viewport.x + 0.5, 300 - viewport.y + 0.5, constants.PLAYER_SIZE, constants.PLAYER_SIZE
+          1000 - viewport.x + 0.5 -32, 300 - viewport.y + 0.5 -32, constants.PLAYER_SIZE, constants.PLAYER_SIZE
         );
         ctx.restore();
       }
