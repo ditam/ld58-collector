@@ -113,6 +113,17 @@ function generateMapObjects() {
   }
 }
 
+function showNotificationMessage(msg) {
+  const x = player.x - viewport.x - 50;
+  const y = player.y - viewport.y - 50;
+  const notification = $('<div>').addClass('notification-msg').text(msg);
+  notification.css({top: y, left: x});
+  notification.insertAfter(secondaryCanvas);
+  setTimeout(function() {
+    notification.remove();
+  }, 3000);
+}
+
 function generateTownObjects() {
   mapObjects.push({
     type: 'exit',
@@ -363,6 +374,7 @@ function interact() {
           // FIXME: show error
           // FIXME: play error sound
           // TODO: tool size should have effect beyond 2 as well - increased item values maybe?
+          showNotificationMessage('Too large for my digging tool.');
           console.log('Leaving large item.');
           return;
         }
@@ -370,9 +382,12 @@ function interact() {
         console.log('found item:', item);
         if (hasFollower) {
           // sell immediately
-          player.score += type2Price[item.type];
+          const price = type2Price[item.type];
+          showNotificationMessage('+' + price);
+          player.score += price;
         } else {
           // put in backpack
+          showNotificationMessage('Picked up ' + type2Name[item.type]);
           inventory.push({type: item.type});
         }
         updateHeader();

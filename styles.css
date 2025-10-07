@@ -100,6 +100,12 @@ canvas:first-child {
   right: 50px;
 }
 
+.notification-msg {
+  position: absolute;
+  color: #361B2D;
+  text-shadow: 0px 0px 2px white;
+}
+
 .finale-msg {
   position: absolute;
   padding: 20px;
